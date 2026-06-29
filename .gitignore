@@ -1,0 +1,26 @@
+# Build artifacts
+obj/
+build/
+*.o
+*.obj
+
+# Binaries
+diarybetes
+diarybetes.exe
+/a.out
+
+# Data exports generated at runtime
+*_export.csv
+glucose_export.csv
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Local working copies of the database (the canonical seed lives in database.db.sql)
+database.local.db
+*.db-journal
+*.db-wal
+*.db-shm
