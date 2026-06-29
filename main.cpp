@@ -69,17 +69,27 @@ int main(){
 
                 if (paciente_real == nullptr) {
                     std::cout << "Falha: O usuário não é um Paciente ou erro no DB.\n";
+                    // Credenciais válidas mas sem perfil de paciente: volta ao
+                    // prompt em vez de seguir com um ponteiro nulo (evita crash).
+                    continue;
                 }
 
                 break;
-                
+
             } else {
                 std::cout << "\nFalha na tentativa de login.\n";
             }
     }
-     
+
+    // Neste ponto o login foi bem-sucedido e o paciente foi carregado.
+    // A checagem defensiva abaixo protege contra qualquer caminho inesperado.
+    if (paciente_real == nullptr) {
+        std::cerr << "Erro fatal: paciente não carregado. Encerrando.\n";
+        return 1;
+    }
+
     //ID do paciente logado
-    int ID = paciente_real->searchId(); 
+    int ID = paciente_real->searchId();
     
     int choice;
     // Loop principal de exibicao da tabela
@@ -347,6 +357,7 @@ int main(){
                 GlucoseRecord registroGlicose(*paciente_real, data, *horas, glucoselvl, jejum);
                 registroGlicose.registerDB(ID);
 
+                break;
             }
 
             // Exibir Registros Glicose
@@ -413,6 +424,8 @@ int main(){
 
                 MealPlan plano(alimentos, nutricionista, vitaminas, proteinas, carboidrato, gordura, *paciente_real);
                 plano.register_mealPlan(ID);
+
+                break;
             }
 
             // Modficar Plano Alimentar
