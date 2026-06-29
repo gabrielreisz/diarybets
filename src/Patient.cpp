@@ -3,6 +3,7 @@
 #include "../include/ConsultationRecord.hpp"
 #include "../include/ExamRecord.hpp"
 #include "../include/Time.hpp"
+#include "../include/Security.hpp"
 #include <iostream>
 #include <sqlite3.h>
 #include <algorithm>
@@ -106,22 +107,52 @@ bool Patient::login(std::string inputCpf, std::string inputPassword) {
             throw std::runtime_error(std::string("Erro ao abrir banco de dados: ") + sqlite3_errmsg(db));
         }
 
-        // Primeiro passo: verifica CPF e senha na tabela Pessoa
-        const char* sqlPessoa = "SELECT id FROM Pessoa WHERE Cpf = ? AND Senha = ?";
-        
+        // Primeiro passo: busca o hash da senha pelo CPF e verifica em código.
+        // A comparação não é feita no SQL para permitir hashing com salt e a
+        // migração transparente de contas legadas em texto puro.
+        const char* sqlPessoa = "SELECT id, Senha FROM Pessoa WHERE Cpf = ?";
+
         if (sqlite3_prepare_v2(db, sqlPessoa, -1, &stmt, nullptr) != SQLITE_OK) {
             throw std::runtime_error(std::string("Erro ao preparar consulta (Pessoa): ") + sqlite3_errmsg(db));
         }
 
         // Bind dos parâmetros (prepared statement pra evitar SQL injection)
         sqlite3_bind_text(stmt, 1, inputCpf.c_str(), -1, SQLITE_STATIC);
-        sqlite3_bind_text(stmt, 2, inputPassword.c_str(), -1, SQLITE_STATIC);
 
-        // Executa a query
+        bool credentialsOk = false;
+        int pessoaId = -1;
         if (sqlite3_step(stmt) == SQLITE_ROW) {
-            int pessoaId = sqlite3_column_int(stmt, 0);
+            pessoaId = sqlite3_column_int(stmt, 0);
+            const unsigned char* storedText = sqlite3_column_text(stmt, 1);
+            std::string stored = storedText ? reinterpret_cast<const char*>(storedText) : "";
             sqlite3_finalize(stmt);
             stmt = nullptr;
+
+            if (Security::isHashed(stored)) {
+                credentialsOk = Security::verifyPassword(inputPassword, stored);
+            } else {
+                // Conta legada: senha em texto puro. Valida e, se correta,
+                // migra para hash com salt de forma transparente.
+                credentialsOk = (inputPassword == stored);
+                if (credentialsOk) {
+                    sqlite3_stmt* upgrade = nullptr;
+                    const char* sqlUpgrade = "UPDATE Pessoa SET Senha = ? WHERE id = ?";
+                    if (sqlite3_prepare_v2(db, sqlUpgrade, -1, &upgrade, nullptr) == SQLITE_OK) {
+                        std::string newHash = Security::hashPassword(inputPassword);
+                        sqlite3_bind_text(upgrade, 1, newHash.c_str(), -1, SQLITE_TRANSIENT);
+                        sqlite3_bind_int(upgrade, 2, pessoaId);
+                        sqlite3_step(upgrade);
+                    }
+                    sqlite3_finalize(upgrade);
+                }
+            }
+        } else {
+            sqlite3_finalize(stmt);
+            stmt = nullptr;
+        }
+
+        // Executa a query
+        if (credentialsOk) {
 
             // Segundo passo: verifica se essa pessoa é um paciente
             const char* sqlPaciente = "SELECT Id FROM Paciente WHERE Pessoa = ?";
@@ -748,7 +779,11 @@ bool Patient::verifyLogin(const std::string& inputCpf, const std::string& inputP
 
         if (sqlite3_step(stmt) == SQLITE_ROW) {
             const unsigned char* dbPassword = sqlite3_column_text(stmt, 0);
-            if (dbPassword && inputPassword == reinterpret_cast<const char*>(dbPassword)) {
+            std::string stored = dbPassword ? reinterpret_cast<const char*>(dbPassword) : "";
+            bool ok = Security::isHashed(stored)
+                          ? Security::verifyPassword(inputPassword, stored)
+                          : (inputPassword == stored);
+            if (ok) {
                 login_success = true;
                 std::cout << "Login bem-sucedido!" << std::endl;
             } else {
