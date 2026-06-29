@@ -13,6 +13,8 @@
 #include "include/DatabaseMethods.hpp"
 #include "include/Time.hpp"
 #include "include/Medication.hpp"
+#include "include/GlucoseAnalytics.hpp"
+#include "include/Console.hpp"
 
 int main(){
     
@@ -54,9 +56,16 @@ int main(){
     while(true){
         std::cout << "========== LOGIN ==========\n";
         std::cout << "Digite seu CPF: ";
-        std::cin >> cpf;
+        if(!(std::cin >> cpf)){
+            // Entrada encerrada (EOF/erro): aborta em vez de entrar em loop infinito.
+            std::cerr << "\nEntrada encerrada. Saindo.\n";
+            return 1;
+        }
         std::cout << "Digite sua senha: ";
-        std::cin >> senha;
+        if(!(std::cin >> senha)){
+            std::cerr << "\nEntrada encerrada. Saindo.\n";
+            return 1;
+        }
 
         if (paciente_temporario.login(cpf, senha)) {
 
@@ -69,17 +78,27 @@ int main(){
 
                 if (paciente_real == nullptr) {
                     std::cout << "Falha: O usuário não é um Paciente ou erro no DB.\n";
+                    // Credenciais válidas mas sem perfil de paciente: volta ao
+                    // prompt em vez de seguir com um ponteiro nulo (evita crash).
+                    continue;
                 }
 
                 break;
-                
+
             } else {
                 std::cout << "\nFalha na tentativa de login.\n";
             }
     }
-     
+
+    // Neste ponto o login foi bem-sucedido e o paciente foi carregado.
+    // A checagem defensiva abaixo protege contra qualquer caminho inesperado.
+    if (paciente_real == nullptr) {
+        std::cerr << "Erro fatal: paciente não carregado. Encerrando.\n";
+        return 1;
+    }
+
     //ID do paciente logado
-    int ID = paciente_real->searchId(); 
+    int ID = paciente_real->searchId();
     
     int choice;
     // Loop principal de exibicao da tabela
@@ -100,9 +119,16 @@ int main(){
             std::cout << "9) Exibir plano alimentar     \n";
             std::cout << "10) Registrar um medicamento  \n";
             std::cout << "11) Exibir medicamentos       \n";
-            std::cout << "12) Sair                      \n";
+            std::cout << "12) Analisar glicose (painel) \n";
+            std::cout << "13) Exportar glicose (CSV)    \n";
+            std::cout << "14) Sair                      \n";
             std::cout << "==============================\n";
             if(std::cin >> choice){
+                break;
+            } else if (std::cin.eof()) {
+                // Entrada encerrada: sai de forma limpa em vez de loop infinito.
+                continuous = false;
+                choice = 14;
                 break;
             } else {
                 std::cout << "Escolha uma opcao valida!\n";
@@ -347,6 +373,7 @@ int main(){
                 GlucoseRecord registroGlicose(*paciente_real, data, *horas, glucoselvl, jejum);
                 registroGlicose.registerDB(ID);
 
+                break;
             }
 
             // Exibir Registros Glicose
@@ -413,6 +440,8 @@ int main(){
 
                 MealPlan plano(alimentos, nutricionista, vitaminas, proteinas, carboidrato, gordura, *paciente_real);
                 plano.register_mealPlan(ID);
+
+                break;
             }
 
             // Modficar Plano Alimentar
@@ -478,7 +507,20 @@ int main(){
                 break;
             }
 
+            // Painel de análise estatística/clínica da glicose
             case 12 : {
+                GlucoseAnalytics::printReport(ID);
+                break;
+            }
+
+            // Exportar registros de glicose para CSV
+            case 13 : {
+                const std::string caminho = "glucose_export.csv";
+                GlucoseAnalytics::exportCsv(ID, caminho);
+                break;
+            }
+
+            case 14 : {
                 continuous = false;
                 break;
             }
