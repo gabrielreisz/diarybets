@@ -189,13 +189,31 @@ make
 diarybetes.exe
 ```
 
-### Comandos do Makefile
+### Comandos do Makefile (terminal)
 
 | Comando | Ação |
 |---|---|
-| `make` | Compila o projeto |
+| `make` | Compila a versão de terminal |
 | `make clean` | Remove objetos e binário |
 | `make rebuild` | Limpa e recompila |
+
+### Interface gráfica (Qt 6) — opcional
+
+A **mesma base de código** também compila como aplicação gráfica (Qt 6 +
+QtCharts), reutilizando exatamente o mesmo núcleo (domínio, banco, segurança e
+análise) da versão de terminal. O *makefile* da GUI é gerado com nome próprio
+para não colidir com o `Makefile` do terminal:
+
+```bash
+# requer Qt 6 (ex.: brew install qt)
+qmake6 -o Makefile.gui Diarybetes.pro
+make -f Makefile.gui
+./build-gui/bin/Diarybetes        # Linux
+open build-gui/bin/Diarybetes.app # macOS
+```
+
+> Terminal e GUI vivem na **mesma branch**: escolha a interface pelo comando de
+> build, sem trocar de branch nem duplicar o núcleo.
 
 ## 🕹️ Como usar
 
@@ -236,10 +254,11 @@ diarybets/
 
 ## 🗺️ Roadmap
 
+- [x] Interface gráfica (Qt 6) compartilhando o núcleo com a versão de terminal.
 - [ ] Camada `Database` (RAII) unificando abertura/fechamento de conexões.
 - [ ] Testes automatizados (unitários para `Security` e `GlucoseAnalytics`).
 - [ ] Relatório agregado por períodos (semana/mês) e por jejum vs. pós-prandial.
-- [ ] Interface gráfica (ver branch [`gui/qt`](../../tree/gui/qt)).
+- [ ] Painel de análise e gráfico de glicose (QtCharts) reutilizando `GlucoseAnalytics`.
 
 ## 🛠️ Desenvolvimento
 
