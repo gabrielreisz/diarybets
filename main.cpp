@@ -13,6 +13,8 @@
 #include "include/DatabaseMethods.hpp"
 #include "include/Time.hpp"
 #include "include/Medication.hpp"
+#include "include/GlucoseAnalytics.hpp"
+#include "include/Console.hpp"
 
 int main(){
     
@@ -54,9 +56,16 @@ int main(){
     while(true){
         std::cout << "========== LOGIN ==========\n";
         std::cout << "Digite seu CPF: ";
-        std::cin >> cpf;
+        if(!(std::cin >> cpf)){
+            // Entrada encerrada (EOF/erro): aborta em vez de entrar em loop infinito.
+            std::cerr << "\nEntrada encerrada. Saindo.\n";
+            return 1;
+        }
         std::cout << "Digite sua senha: ";
-        std::cin >> senha;
+        if(!(std::cin >> senha)){
+            std::cerr << "\nEntrada encerrada. Saindo.\n";
+            return 1;
+        }
 
         if (paciente_temporario.login(cpf, senha)) {
 
@@ -110,9 +119,16 @@ int main(){
             std::cout << "9) Exibir plano alimentar     \n";
             std::cout << "10) Registrar um medicamento  \n";
             std::cout << "11) Exibir medicamentos       \n";
-            std::cout << "12) Sair                      \n";
+            std::cout << "12) Analisar glicose (painel) \n";
+            std::cout << "13) Exportar glicose (CSV)    \n";
+            std::cout << "14) Sair                      \n";
             std::cout << "==============================\n";
             if(std::cin >> choice){
+                break;
+            } else if (std::cin.eof()) {
+                // Entrada encerrada: sai de forma limpa em vez de loop infinito.
+                continuous = false;
+                choice = 14;
                 break;
             } else {
                 std::cout << "Escolha uma opcao valida!\n";
@@ -491,7 +507,20 @@ int main(){
                 break;
             }
 
+            // Painel de análise estatística/clínica da glicose
             case 12 : {
+                GlucoseAnalytics::printReport(ID);
+                break;
+            }
+
+            // Exportar registros de glicose para CSV
+            case 13 : {
+                const std::string caminho = "glucose_export.csv";
+                GlucoseAnalytics::exportCsv(ID, caminho);
+                break;
+            }
+
+            case 14 : {
                 continuous = false;
                 break;
             }

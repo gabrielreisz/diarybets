@@ -13,12 +13,12 @@ all: $(OBJDIR)/main.o $(OBJDIR)/Person.o $(OBJDIR)/Patient.o $(OBJDIR)/Time.o \
      $(OBJDIR)/HealthRecord.o $(OBJDIR)/ConsultationRecord.o $(OBJDIR)/ExamRecord.o \
      $(OBJDIR)/GlucoseRecord.o $(OBJDIR)/Medication.o $(OBJDIR)/MedicationRecord.o \
      $(OBJDIR)/MealPlan.o $(OBJDIR)/DatabaseMethods.o $(OBJDIR)/Security.o \
-     $(OBJDIR)/sqlite3.o
+     $(OBJDIR)/Console.o $(OBJDIR)/GlucoseAnalytics.o $(OBJDIR)/sqlite3.o
 	$(CXX) -o $(TARGET) $(OBJDIR)/main.o $(OBJDIR)/Person.o $(OBJDIR)/Patient.o $(OBJDIR)/Time.o \
            $(OBJDIR)/HealthRecord.o $(OBJDIR)/ConsultationRecord.o $(OBJDIR)/ExamRecord.o \
            $(OBJDIR)/GlucoseRecord.o $(OBJDIR)/Medication.o $(OBJDIR)/MedicationRecord.o \
            $(OBJDIR)/MealPlan.o $(OBJDIR)/DatabaseMethods.o $(OBJDIR)/Security.o \
-           $(OBJDIR)/sqlite3.o -g
+           $(OBJDIR)/Console.o $(OBJDIR)/GlucoseAnalytics.o $(OBJDIR)/sqlite3.o -g
 
 $(OBJDIR)/main.o: main.cpp
 	@mkdir -p $(OBJDIR)
@@ -71,6 +71,14 @@ $(OBJDIR)/DatabaseMethods.o: $(SRCDIR)/DatabaseMethods.cpp $(INCDIR)/DatabaseMet
 $(OBJDIR)/Security.o: $(SRCDIR)/Security.cpp $(INCDIR)/Security.hpp
 	@mkdir -p $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -c $(SRCDIR)/Security.cpp -o $(OBJDIR)/Security.o
+
+$(OBJDIR)/Console.o: $(SRCDIR)/Console.cpp $(INCDIR)/Console.hpp
+	@mkdir -p $(OBJDIR)
+	$(CXX) $(CXXFLAGS) -c $(SRCDIR)/Console.cpp -o $(OBJDIR)/Console.o
+
+$(OBJDIR)/GlucoseAnalytics.o: $(SRCDIR)/GlucoseAnalytics.cpp $(INCDIR)/GlucoseAnalytics.hpp $(INCDIR)/Console.hpp
+	@mkdir -p $(OBJDIR)
+	$(CXX) $(CXXFLAGS) -c $(SRCDIR)/GlucoseAnalytics.cpp -o $(OBJDIR)/GlucoseAnalytics.o
 
 $(OBJDIR)/sqlite3.o: $(SRCDIR)/sqlite3.c $(INCDIR)/sqlite3.h
 	@mkdir -p $(OBJDIR)
