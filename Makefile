@@ -88,4 +88,6 @@ clean:
 	rm -f $(OBJDIR)/*.o $(TARGET)
 	@echo "Limpeza concluida."
 
-.PHONY: all clean
+rebuild: clean all
+
+.PHONY: all clean rebuild
