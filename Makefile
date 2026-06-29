@@ -12,11 +12,13 @@ TARGET = diarybetes
 all: $(OBJDIR)/main.o $(OBJDIR)/Person.o $(OBJDIR)/Patient.o $(OBJDIR)/Time.o \
      $(OBJDIR)/HealthRecord.o $(OBJDIR)/ConsultationRecord.o $(OBJDIR)/ExamRecord.o \
      $(OBJDIR)/GlucoseRecord.o $(OBJDIR)/Medication.o $(OBJDIR)/MedicationRecord.o \
-     $(OBJDIR)/MealPlan.o $(OBJDIR)/DatabaseMethods.o $(OBJDIR)/sqlite3.o
+     $(OBJDIR)/MealPlan.o $(OBJDIR)/DatabaseMethods.o $(OBJDIR)/Security.o \
+     $(OBJDIR)/sqlite3.o
 	$(CXX) -o $(TARGET) $(OBJDIR)/main.o $(OBJDIR)/Person.o $(OBJDIR)/Patient.o $(OBJDIR)/Time.o \
            $(OBJDIR)/HealthRecord.o $(OBJDIR)/ConsultationRecord.o $(OBJDIR)/ExamRecord.o \
            $(OBJDIR)/GlucoseRecord.o $(OBJDIR)/Medication.o $(OBJDIR)/MedicationRecord.o \
-           $(OBJDIR)/MealPlan.o $(OBJDIR)/DatabaseMethods.o $(OBJDIR)/sqlite3.o -g
+           $(OBJDIR)/MealPlan.o $(OBJDIR)/DatabaseMethods.o $(OBJDIR)/Security.o \
+           $(OBJDIR)/sqlite3.o -g
 
 $(OBJDIR)/main.o: main.cpp
 	@mkdir -p $(OBJDIR)
@@ -62,9 +64,13 @@ $(OBJDIR)/MealPlan.o: $(SRCDIR)/MealPlan.cpp $(INCDIR)/MealPlan.hpp $(INCDIR)/Pa
 	@mkdir -p $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -c $(SRCDIR)/MealPlan.cpp -o $(OBJDIR)/MealPlan.o
 
-$(OBJDIR)/DatabaseMethods.o: $(SRCDIR)/DatabaseMethods.cpp $(INCDIR)/DatabaseMethods.hpp
+$(OBJDIR)/DatabaseMethods.o: $(SRCDIR)/DatabaseMethods.cpp $(INCDIR)/DatabaseMethods.hpp $(INCDIR)/Security.hpp
 	@mkdir -p $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -c $(SRCDIR)/DatabaseMethods.cpp -o $(OBJDIR)/DatabaseMethods.o
+
+$(OBJDIR)/Security.o: $(SRCDIR)/Security.cpp $(INCDIR)/Security.hpp
+	@mkdir -p $(OBJDIR)
+	$(CXX) $(CXXFLAGS) -c $(SRCDIR)/Security.cpp -o $(OBJDIR)/Security.o
 
 $(OBJDIR)/sqlite3.o: $(SRCDIR)/sqlite3.c $(INCDIR)/sqlite3.h
 	@mkdir -p $(OBJDIR)

@@ -8,6 +8,7 @@
 #include "../include/DatabaseMethods.hpp"
 #include "../include/Medication.hpp"
 #include "../include/Time.hpp"
+#include "../include/Security.hpp"
 
 DatabaseMethods::DatabaseMethods(){}
 DatabaseMethods::~DatabaseMethods(){}
@@ -660,6 +661,9 @@ bool DatabaseMethods::createPatient(){
             genderStr = "Feminino";
 
 
+        // Nunca armazena a senha em texto puro: deriva um hash com salt.
+        std::string passwordHash = Security::hashPassword(password);
+
         //inserir dados no banco
         const char* insert = "INSERT INTO Pessoa (Nome, Idade, Sexo, Cpf, Senha, Endereco) VALUES (?,?,?,?,?,?)";
         if (sqlite3_prepare_v2(db, insert, -1, &stmt, nullptr) == SQLITE_OK) {
@@ -668,7 +672,7 @@ bool DatabaseMethods::createPatient(){
             sqlite3_bind_int(stmt, 2, age);
             sqlite3_bind_text(stmt, 3, genderStr.c_str(), -1, SQLITE_TRANSIENT);
             sqlite3_bind_text(stmt, 4, cpf.c_str(), -1, SQLITE_TRANSIENT);
-            sqlite3_bind_text(stmt, 5, password.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 5, passwordHash.c_str(), -1, SQLITE_TRANSIENT);
             sqlite3_bind_text(stmt, 6, adress.c_str(), -1, SQLITE_TRANSIENT);
 
             if (sqlite3_step(stmt) == SQLITE_DONE) {
