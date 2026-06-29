@@ -77,6 +77,29 @@ classDiagram
         +exibirDetalhes()
     }
 
+    class GlucoseAnalytics{
+        <<service>>
+        +loadReadings(patientId) vector~GlucoseReading~
+        +compute(readings) GlucoseStats
+        +printReport(patientId)
+        +exportCsv(patientId, path) bool
+        +sparkline(values) string
+    }
+
+    class Security{
+        <<utility>>
+        +hashPassword(plain) string
+        +verifyPassword(plain, stored) bool
+        +isHashed(stored) bool
+    }
+
+    class Console{
+        <<utility>>
+        +banner(title)
+        +sectionHeader(title)
+        +keyValue(label, value)
+    }
+
     Medicacao "1" *-- "0..*" RegistroMedicacao : possui
     Paciente "1" *-- "0..*" RegistroSaude :  usadoEm
     Paciente  "1"*--"1" PlanoAlimentar : possui
@@ -84,3 +107,7 @@ classDiagram
     RegistroSaude <|-- RegistroGlicose
     RegistroSaude <|-- RegistroConsulta
     RegistroSaude <|-- RegistroExame
+
+    GlucoseAnalytics ..> RegistroGlicose : analisa
+    GlucoseAnalytics ..> Console : usa
+    Paciente ..> Security : autentica

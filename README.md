@@ -1,130 +1,261 @@
-# DiaryBetes
-## Grupo 6
-### 📘 Visão Geral
-Nosso projto tem como proposito criar um sistema onde o usuario pode acompanhar seus registros referentes a sua diabetes, como consutas, exames, dieta e seus registros de glicose.
+<h1 align="center">🩸 DiaryBetes</h1>
 
-### 🏛️ Arquitetura do Classes
-O projeto possui a seguinte estrutura de classes:
-- Pessoa: Responsável por armazenar dados comuns a qualquer pessoa :Nome, CPF, Endereço, Sexo, Idade, Endereço e Senha;
-- Paciente: Herda a classe *Pessoa* e armazena dados como : Tipo de diabetes, Tipos Sanguíneo, Altura, Peso, que são informações médicas importantes para o tratamento de um quadro de diabetes. Seus métodos são responsáveis pelo login no programa, agendamento e cancelamento de consultas e exames (em conjunto com as classes de registro), buscar id de um objeto paciente no banco de dados, impressão de registros clínicos;
-- Medicação: Responsável por gerenciar as medicações do paciente, seus atributos são: Nome do Remédio, *Paciente*, Médico que receitou, Dosagem, Intervalo entre as administrações. Seus métodos são: Registrar no DB e Atualizar Dosagem
-- Registro de Saúde: Classe responsável por ser base de todos os outros registros, seus atributos são: *Paciente*(faz referencia a um  objeto Paciente), Data e Hora. Seus métodos são: Registrar no DB e Exibir detalhes (estes são virtuais e são sobrepostos pelos registros);
-- Registro de Consulta: Herda um *Registro de Saúde*, seus atributos são: Médico, Especialidade do Médico, Descrição (Uma breve descrição do motivo da consulta) e o Local. Seus métodos são: Registrar no DB e Exibir detalhes, que são uma sobreposição do métodos de *Registro de Saúde*;
-- Registro de Exame: Herda um *Registro de Saúde*, seus atributos são: Nome do Exame, Médico Que Requisitou, Laboratório, Resultado (Um breve resumo do resultado do exame). Seus métodos são: Registrar no DB e Exibir detalhes, que são uma sobreposição do métodos de *Registro de Saúde*;
-- Registro de Glicose: Herda um *Registro de Saúde*, seus atributos são: Nível de Glicose e um booleano de Jejum. Seus métodos são: Registrar no DB ( Este exibe um mensagem com um comentário sobre o nível de glicose) e Exibir detalhes, que são uma sobreposição do métodos de *Registro de Saúde*;
-- Registro de Medicação: Herda um *Registro de Saúde*, seu atributo é: Uma referencia pra um *Medicamento* . Seus métodos são: Registrar no DB e Exibir detalhes, que são uma sobreposição do métodos de *Registro de Saúde*;
-- Plano Alimentar: Classe responsável por gerenciar a dieta de um *Paciente* (Relação 1 para 1), seus atributos são: Nutricionista, *Paciente*, Carboidrato, Proteína, Gordura, Vitaminas e Alimentos Evitados. Seus métodos são: Registrar no DB e Atualizar o Plano Alimentar no DB;
-- Métodos do Bancos de Dados: Classe responsável por fazer operações no banco de dados e outras operações mais genéricas de verificação, que não necessariamente dependem de um objeto de um tipo especifico, seus métodos são: Exibir Tabela de todos os *Registros* e Validar Entrada.
+<p align="center">
+  <strong>Diário clínico de acompanhamento da diabetes</strong><br>
+  Registro de glicose, consultas, exames, medicações e plano alimentar — com
+  análise estatística e indicadores glicêmicos no próprio terminal.
+</p>
 
-### 📊 Banco de Dados
-O Banco de Dados foi a ferramenta usada no armazenamento de dados de objetos, foi usado o recurso de *Foreign Key* para Trabalhar com *Herança e Colaboração* dentro do Banco de Dados. A ferramenta usada foi o Sqlite3
+<p align="center">
+  <img alt="C++17"   src="https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus&logoColor=white">
+  <img alt="SQLite"  src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white">
+  <img alt="Build"   src="https://img.shields.io/badge/build-make-success">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
+</p>
 
-### 📝 User Stories
+> ⚕️ **Aviso médico:** projeto **acadêmico** (INF112 — Programação II). Não é um
+> dispositivo médico certificado e não substitui avaliação profissional. As
+> métricas exibidas são informativas.
 
-1. **Como paciente, eu quero criar uma conta no sistema** para poder acessar e gerenciar meus registros médicos relacionados à diabetes.
-   - Critérios de aceitação: O sistema deve permitir cadastro com CPF, nome, endereço, senha e dados médicos (tipo de diabetes, tipo sanguíneo, altura, peso).
+---
 
-2. **Como paciente, eu quero fazer login no sistema** para acessar minhas informações pessoais e registros de saúde.
-   - Critérios de aceitação: O sistema deve validar CPF e senha, e permitir acesso apenas com credenciais corretas.
+## 📑 Sumário
 
-3. **Como paciente, eu quero registrar meus níveis de glicose** para acompanhar minha condição ao longo do tempo.
-   - Critérios de aceitação: O sistema deve permitir registrar data, hora, nível de glicose e se estava em jejum, além de exibir comentários sobre o nível registrado.
+- [Visão geral](#-visão-geral)
+- [Funcionalidades](#-funcionalidades)
+- [Indicadores clínicos](#-indicadores-clínicos-camada-de-data-science)
+- [Arquitetura](#-arquitetura)
+- [Segurança](#-segurança)
+- [Banco de dados](#-banco-de-dados)
+- [Instalação e execução](#-instalação-e-execução)
+- [Como usar](#-como-usar)
+- [Estrutura do projeto](#-estrutura-do-projeto)
+- [Roadmap](#-roadmap)
+- [Desenvolvimento](#-desenvolvimento)
+- [Equipe](#-equipe)
+- [Licença](#-licença)
 
-4. **Como paciente, eu quero visualizar o histórico de glicose em gráfico ou tabela** para entender melhor a evolução dos meus níveis de açúcar no sangue.
-   - Critérios de aceitação: O sistema deve exibir registros ordenados por data e hora, permitindo visualização em formato de tabela ou gráfico.
+---
 
-5. **Como paciente, eu quero registrar consultas médicas e exames** para manter um histórico completo do meu tratamento.
-   - Critérios de aceitação: O sistema deve permitir registrar consultas (médico, especialidade, descrição, local) e exames (nome, laboratório, resultado, médico requisitante) com data e hora.
+## 📘 Visão geral
 
-6. **Como paciente, eu quero gerenciar meu plano alimentar e medicações** para acompanhar minha dieta e tratamento medicamentoso.
-   - Critérios de aceitação: O sistema deve permitir criar e atualizar plano alimentar (nutricionista, carboidratos, proteínas, gorduras, vitaminas, alimentos evitados) e registrar uso de medicações com dosagem e intervalo.
+O **DiaryBetes** centraliza, em uma aplicação de linha de comando, todos os
+registros relevantes para quem convive com a diabetes. Mais do que armazenar
+dados, o sistema os **transforma em informação útil**: a partir do histórico de
+glicose ele calcula estatísticas, estima o controle glicêmico e identifica
+tendências, ajudando paciente e profissional de saúde a tomar decisões.
 
-### 🚀 Instalação e Execução
+O projeto é escrito em **C++17** com persistência em **SQLite3**, modelado com
+herança e colaboração entre classes e portado para Linux e Windows.
 
-#### Pré-requisitos
-- Sistema operacional: Linux (Ubuntu/Debian) ou Windows
-- Compilador: g++ (GCC) com suporte a C++17
-- Make: ferramenta para build
-- SQLite3: banco de dados
+## ✨ Funcionalidades
 
-#### Instalação no Linux (Ubuntu/Debian)
+| Domínio | Recursos |
+|---|---|
+| **Conta** | Cadastro e login com validação de CPF, idade, peso, altura e tipo sanguíneo |
+| **Glicose** | Registro com data/hora e jejum; alertas automáticos de hipo/hiperglicemia |
+| **Análise** | Painel estatístico, Tempo no Alvo, GMI/eA1c, tendência e *sparkline* |
+| **Exportação** | Exportação do histórico de glicose em **CSV** para análise externa |
+| **Consultas/Exames** | Agendamento e listagem, com validação de datas (passado/futuro) |
+| **Medicações** | Cadastro com dosagem e intervalo, listagem ordenada |
+| **Plano alimentar** | Cadastro e atualização de macronutrientes e restrições |
+| **Segurança** | Senhas com *hash* PBKDF2 + *salt*; *prepared statements* em todo o SQL |
 
-1. **Clone o repositório:**
-```bash
-git clone https://github.com/seu-usuario/20252-team-6.git
-cd 20252-team-6
+## 📊 Indicadores clínicos (camada de *data science*)
+
+A opção **"Analisar glicose"** gera um painel com métricas reconhecidas no
+manejo do diabetes, calculadas em uma passagem **O(n)** sobre os registros
+(ordenação cronológica em **O(n log n)**):
+
+| Métrica | Fórmula / Faixa | Referência |
+|---|---|---|
+| **Tempo no Alvo (TIR)** | % de leituras em 70–180 mg/dL | Consenso ADA |
+| **GMI** | `3.31 + 0.02392 × média` | Bergenstal et al., 2018 |
+| **A1c estimada (eA1c)** | `(média + 46.7) / 28.7` | Estudo ADAG (Nathan, 2008) |
+| **Variabilidade (CV)** | `desvio padrão / média × 100` (alvo ≤ 36%) | Consenso ATTD |
+| **Tendência** | inclinação por regressão linear (mínimos quadrados) | — |
+
+Exemplo de saída:
+
+```
+                     ANALISE DE GLICOSE
+============================================================
+
+Estatisticas descritivas (mg/dL)
+--------------------------------
+  Leituras:                   15
+  Media:                      133.2
+  Mediana:                    128.0
+  Desvio padrao:              36.9
+  Variabilidade (CV):         27.7%
+
+Controle glicemico estimado
+---------------------------
+  GMI (indicador de gestao):  6.50%
+  A1c estimada (eA1c):        6.27%
+
+Tempo no alvo (TIR)
+-------------------
+  No alvo       ###################..... 80.0%
+  Abaixo (<70)  ##...................... 6.7%
+  Acima (>180)  ###..................... 13.3%
+
+Tendencia e serie temporal
+--------------------------
+  Tendencia:                  descendo (-1.96 mg/dL por leitura)
+  Serie (antiga -> recente):  ▄▅▆█▄▁▅▇▃▇▃▅▃▄▃
 ```
 
-2. **Instale as dependências:**
-```bash
-sudo apt-get update
-sudo apt-get install -y build-essential g++ make sqlite3 libsqlite3-dev
+## 🏛️ Arquitetura
+
+O sistema combina **herança** (registros clínicos) e **colaboração** (serviços e
+utilitários), com a persistência isolada em métodos de banco.
+
+```mermaid
+%% Diagrama completo em diagram.mmd
+classDiagram
+    Pessoa <|-- Paciente
+    RegistroSaude <|-- RegistroGlicose
+    RegistroSaude <|-- RegistroConsulta
+    RegistroSaude <|-- RegistroExame
+    RegistroSaude <|-- RegistroMedicacao
+    Paciente "1" *-- "0..*" RegistroSaude
+    Paciente "1" *-- "1" PlanoAlimentar
+    GlucoseAnalytics ..> RegistroGlicose : analisa
+    Paciente ..> Security : autentica
 ```
 
-3. **Compile o projeto:**
+**Camadas e módulos:**
+
+- **Domínio** — `Pessoa`, `Paciente`, `Medicacao`, `PlanoAlimentar`.
+- **Registros** — `RegistroSaude` (base abstrata) e os derivados `RegistroGlicose`,
+  `RegistroConsulta`, `RegistroExame`, `RegistroMedicacao`.
+- **Serviços** — `GlucoseAnalytics` (estatística/relatórios), `DatabaseMethods`
+  (consultas e validações).
+- **Utilitários** — `Security` (hashing de senhas), `Console` (UI do terminal),
+  `Time` (parsing/validação de horário).
+
+> A herança no banco é representada via **chaves estrangeiras** (`RegistroSaude`
+> referenciado pelos registros especializados).
+
+## 🔐 Segurança
+
+- **Senhas com *hash***: derivadas com **PBKDF2-HMAC-SHA256** (120 000 iterações)
+  e ***salt* aleatório por usuário**, armazenadas como
+  `pbkdf2_sha256$<iter>$<salt>$<hash>`. A verificação usa **comparação em tempo
+  constante** para mitigar *timing attacks*.
+- **Migração transparente**: contas legadas em texto puro são validadas uma vez
+  e automaticamente reescritas como *hash* no primeiro login bem-sucedido.
+- **Sem SQL injection**: toda interação com o banco usa *prepared statements* com
+  *binding* de parâmetros.
+- **Exception-safe**: as operações de banco liberam *statements* e conexões em
+  todos os caminhos, inclusive em erro.
+
+## 🗄️ Banco de dados
+
+SQLite3, com o esquema versionado em [`database.db.sql`](database.db.sql). Para
+recriar o banco do zero:
+
+```bash
+sqlite3 database.db < database.db.sql
+```
+
+Para popular uma série de glicose de demonstração (paciente Id = 1):
+
+```bash
+sqlite3 database.db < seed_demo.sql
+```
+
+## 🚀 Instalação e execução
+
+### Pré-requisitos
+- Compilador com **C++17** (g++ 9+).
+- **make**.
+- SQLite3 (o *amalgamation* já acompanha o projeto em `src/sqlite3.c`).
+
+### Linux / macOS
+
+```bash
+git clone https://github.com/gabrielreisz/diarybets.git
+cd diarybets
+make            # compila (-Wall -Wextra)
+./diarybetes    # executa
+```
+
+### Windows (MinGW-w64 / MSYS2)
+
 ```bash
 make
-```
-
-4. **Execute o programa:**
-```bash
-./diarybetes
-```
-
-#### Instalação no Windows
-
-1. **Clone o repositório:**
-```bash
-git clone https://github.com/seu-usuario/20252-team-6.git
-cd 20252-team-6
-```
-
-2. **Instale as dependências:**
-   - **MinGW-w64 ou MSYS2:**
-     - Baixe e instale o MinGW-w64 ou MSYS2
-     - Adicione o caminho do g++ ao PATH do sistema
-   
-   - **Make:**
-     - Instale via Chocolatey: `choco install make`
-     - Ou baixe de: https://www.gnu.org/software/make/
-   
-   - **SQLite3:**
-     - Baixe de: https://www.sqlite.org/download.html
-     - Extraia e adicione ao PATH, ou coloque os arquivos na pasta do projeto
-
-3. **Compile o projeto:**
-```bash
-make
-```
-
-4. **Execute o programa:**
-```bash
 diarybetes.exe
 ```
 
-#### Comandos Úteis
+### Comandos do Makefile
 
-- `make` - Compila o projeto
-- `make clean` - Remove arquivos compilados (.o e executável)
-- `make rebuild` - Limpa e recompila tudo
+| Comando | Ação |
+|---|---|
+| `make` | Compila o projeto |
+| `make clean` | Remove objetos e binário |
+| `make rebuild` | Limpa e recompila |
 
-#### Estrutura do Projeto
+## 🕹️ Como usar
+
+Ao iniciar, escolha **Criar conta** ou **Login**. Após autenticar, o menu
+principal oferece:
+
 ```
-20252-team-6/
-├── include/          # Headers (.hpp)
-├── src/              # Código fonte (.cpp)
-├── main.cpp          # Arquivo principal
-├── Makefile          # Arquivo de build
-└── README.md         # Este arquivo
+1) Marcar uma consulta          8) Mudar plano alimentar
+2) Exibir consultas marcadas    9) Exibir plano alimentar
+3) Inserir resultado exame     10) Registrar um medicamento
+4) Exibir exames marcados      11) Exibir medicamentos
+5) Registrar nivel de glicose  12) Analisar glicose (painel)
+6) Exibir registros de glicose 13) Exportar glicose (CSV)
+7) Registrar plano alimentar   14) Sair
 ```
 
-### 🛠️ Outras Ferramentas
-Foi usado:
-- Notion e Slack para gerenciamento;
-- Discord para reuniões;
-- GitHub para versionmeto de código
+> Conta de demonstração (após carregar o banco semente): CPF `12345678901`,
+> senha `senha123`.
 
-### 🧍 Integrantes:
-- Gabriel Costa Reis - 120549
-- Marcos Vinícius Mariano Dias - 120560
-- Victor Alexandre Siqueira Ribeiro - 120557
+## 📁 Estrutura do projeto
+
+```
+diarybets/
+├── include/             # Cabeçalhos (.hpp)
+│   ├── Security.hpp         # hashing de credenciais
+│   ├── Console.hpp          # UI de terminal (cores/banners)
+│   └── GlucoseAnalytics.hpp # métricas de glicose
+├── src/                 # Implementações (.cpp)
+├── main.cpp             # Ponto de entrada / menu
+├── database.db.sql      # Esquema do banco
+├── seed_demo.sql        # Dados de demonstração de glicose
+├── diagram.mmd          # Diagrama de classes (Mermaid)
+├── Makefile             # Build
+├── CONTRIBUTING.md      # Fluxo de trabalho e padrões
+├── CHANGELOG.md         # Histórico de mudanças
+└── README.md
+```
+
+## 🗺️ Roadmap
+
+- [ ] Camada `Database` (RAII) unificando abertura/fechamento de conexões.
+- [ ] Testes automatizados (unitários para `Security` e `GlucoseAnalytics`).
+- [ ] Relatório agregado por períodos (semana/mês) e por jejum vs. pós-prandial.
+- [ ] Interface gráfica (ver branch [`gui/qt`](../../tree/gui/qt)).
+
+## 🛠️ Desenvolvimento
+
+Adotamos **Git Flow simplificado** (`feat/`, `fix/`, `refactor/`, `docs/`,
+`chore/`), **Conventional Commits** e *merges* com `--no-ff`. Detalhes em
+[CONTRIBUTING.md](CONTRIBUTING.md). Ferramentas de apoio: Notion, Slack, Discord
+e GitHub.
+
+## 🧍 Equipe
+
+| Integrante | Matrícula |
+|---|---|
+| Gabriel Costa Reis | 120549 |
+| Marcos Vinícius Mariano Dias | 120560 |
+| Victor Alexandre Siqueira Ribeiro | 120557 |
+
+## 📄 Licença
+
+Distribuído sob a licença **MIT**. Veja [LICENSE](LICENSE).
