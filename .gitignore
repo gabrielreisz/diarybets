@@ -4,6 +4,14 @@ build/
 *.o
 *.obj
 
+# Qt / qmake build artifacts (interface gráfica)
+build-gui/
+Makefile.gui
+*.app/
+.qmake.stash
+moc/
+ui_generated/
+
 # Binaries
 diarybetes
 diarybetes.exe

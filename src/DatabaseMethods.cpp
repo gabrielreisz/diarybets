@@ -490,6 +490,14 @@ bool DatabaseMethods::isValidDateString(const std::string& dataStr) {
 
 }
 
+// Valida um horário no formato HH:MM ou HH:MM:SS (24h).
+bool DatabaseMethods::isValidTimeString(const std::string& timeStr) {
+    std::regex time_regex1("^([0-1][0-9]|2[0-3]):[0-5][0-9]$");
+    std::regex time_regex2("^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$");
+
+    return std::regex_match(timeStr, time_regex1) || std::regex_match(timeStr, time_regex2);
+}
+
 bool DatabaseMethods::isValidCPF(std::string& cpfStr) {
     //remove caracteres nao numericos
     std::string cleanCPF;
